@@ -59,7 +59,7 @@ class DB_mysql
 	 */
 	public static function insert($sql){
 		$query = self::query($sql);
-		// $result = $query->insert_id();
+		$result = $query->insert_id();
 		return $query;
 	}
 
