@@ -68,6 +68,7 @@ class Page{
 			$start_page = $this->currentPage-2;
 			// 当前页码的后两页
 			$end_page = $this->currentPage+2;
+			// page
 
 		}
 
