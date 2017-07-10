@@ -5,18 +5,26 @@ class Page{
 	protected $currentPage;			// 当前页
 	protected $rows;				// 每页显示的条数
 	protected $pageUrl;				// 分页URL
-	protected $pageStyle;			// 分页的样式
-	public function __construct($count=1, $currentPage=1, $rows=1, $pageUrl='', $pageStyle=1){
+	protected $pageShow;			// 总共需要显示的页数
+	public function __construct($count=1, $currentPage=1, $rows=1, $pageShow=1, $pageUrl=''){
 		$con_count = $this->setNum($count);
 		$con_curpage = $this->setNum($currentPage);
 		$con_rows = $this->setNum($rows);
-		$con_style = $this->setNum($pageStyle);
-		$this->count = $con_count<0?0:$con_count;
-		$this->currentPage = $con_curpage<1?1:$con_curpage;
+
 		$this->rows = $con_rows<1?1:$con_rows;
-		$this->pageStyle = $con_style<1?1:$con_style;
+		$this->count = $con_count<0?0:$con_count;
 		$this->countPage = ceil($this->count/$this->rows);
+		if($con_curpage<1){
+			$this->currentPage = 1;
+		}else{
+			if($con_curpage>$this->countPage){
+				$this->currentPage = $this->countPage;
+			}else{
+				$this->currentPage = $con_curpage;
+			}
+		}
 		$this->pageUrl = $pageUrl;
+		$this->pageShow = $pageShow;
 	}
 
 	// 校验数字
@@ -27,58 +35,100 @@ class Page{
         return $num;
 	}
 
+	// 填充分页占位符
+	private function setPage($page){
+		if($page){
+			return str_replace('{page}', $page, $this->pageUrl);
+		}else{
+			return $this->pageUrl;
+		}
+	}
+
 	// 生成分页
-	public function showPage(){
-		$func = 'createPage' . $this->pageStyle;
-		return $this->$func();
+	public function showPage($pageStyle){
+		if($pageStyle==1){
+			return $this->createPage1();
+		}
 	}
 
 	/**
-	 * 共30条记录，当前第1/5页 [首页] [上页] [1] .. [4] [5] [6] [7] [8] .. [11] [下页] [尾页]
+	 * 共30条记录，当前第1/5页 [首页] [上页] [1] .. [4] [5] [6] [7] [8] .. [15] [下页] [尾页]
 	 */
 	private function createPage1(){
 		$pagestr = '';
 		$pagestr .= '共'.$this->count.'条记录，当前是第'.$this->currentPage.'/'.$this->countPage.'页';
+		$pagestr .= '<nav aria-label="..."><ul class="pagination">';
 		if($this->currentPage>1){
-			$pagestr .= ' [<a href="'.($this->pageUrl.'?page=1').'">首页</a>] ';
-			$pagestr .= ' [<a href="'.($this->pageUrl.'?page='.($this->currentPage-1)).'">上页</a>] ';
+			$pagestr .= '<li><a href="'.$this->setPage(1).'" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>';
+			$pagestr .= '<li><a href="'.$this->setPage($this->currentPage-1).'" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>';
 		}else{
-			$pagestr .= ' [<a href="javascript:void(0);">首页</a>] ';
-			$pagestr .= ' [<a href="javascript:void(0);">上页</a>] ';
+			$pagestr .= '<li class="disabled"><a href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>';
+			$pagestr .= '<li class="disabled"><a href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>';
 		}
 
-		if($this->countPage<7){
+		if($this->countPage<10){
 			for ($i=1; $i <= $this->countPage; $i++) {
 				if($i==$this->currentPage){
-					$pagestr .= ' [<a href="javascript:void(0);">'.$i.'</a>] ';
+					$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
 				}else{
-					$pagestr .= ' [<a href="'.($this->pageUrl.'?page='.$i).'">'.$i.'</a>] ';
+					$pagestr .= '<li><a href="'.$this->setPage($i).'">'.$i.'</a></li>';
 				}
 			}
 		}else{
-			// 当前页>=4的时候，添加第一个页码元素
-			if($this->currentPage!=1 && $this->currentPage>=4 && $this->countPage!=4){
-				$pagestr .= ' [<a href="'.($this->pageUrl.'?page=1').'">1</a>] ';
-			}
-			// 页码>4，并且<=总页数，总页码>5，添加...
-			if($this->currentPage-2>2 && $this->currentPage<=$this->countPage && $this->currentPage>5){
-				$pagestr .= '...';
-			}
-			// 当前页码的前两页
-			$start_page = $this->currentPage-2;
-			// 当前页码的后两页
-			$end_page = $this->currentPage+2;
-			// page
+			$left = 1+4;
+			$right = $this->countPage-4;
 
+			if($this->currentPage<=$left){
+				$need = $this->pageShow - 1;
+				for ($i=1; $i <= $need; $i++) {
+					if($i==$this->currentPage){
+						$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
+					}else{
+						$pagestr .= '<li><a href="'.$this->setPage($i).'">'.$i.'</a></li>';
+					}
+				}
+				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
+				$pagestr .= '<li><a href="'.$this->setPage($this->countPage).'">'.$this->countPage.'</a></li>';
+			}
+
+			if($this->currentPage>$left && $this->currentPage<$right){
+				$pagestr .= '<li><a href="'.$this->setPage(1).'">1</a></li>';
+				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
+				$left = $this->currentPage - 3;
+				$right = $this->currentPage + 3;
+				for ($i=$left; $i <= $right; $i++) {
+					if($i==$this->currentPage){
+						$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
+					}else{
+						$pagestr .= '<li><a href="'.$this->setPage($i).'">'.$i.'</a></li>';
+					}
+				}
+				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
+				$pagestr .= '<li><a href="'.$this->setPage($this->countPage).'">'.$this->countPage.'</a></li>';
+			}
+
+			if($this->currentPage>=$right){
+				$pagestr .= '<li><a href="'.$this->setPage(1).'">1</a></li>';
+				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
+				$need = $this->countPage - ($this->pageShow - 1) + 1;
+				for ($i=$need; $i <= $this->countPage; $i++) {
+					if($i==$this->currentPage){
+						$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
+					}else{
+						$pagestr .= '<li><a href="'.$this->setPage($i).'">'.$i.'</a></li>';
+					}
+				}
+			}
 		}
 
 		if($this->currentPage<$this->countPage){
-			$pagestr .= ' [<a href="'.($this->pageUrl.'?page='.($this->currentPage+1)).'">下页</a>] ';
-			$pagestr .= ' [<a href="'.($this->pageUrl.'?page='.$this->countPage).'">尾页</a>] ';
+			$pagestr .= '<li><a href="'.$this->setPage($this->currentPage+1).'" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>';
+			$pagestr .= '<li><a href="'.$this->setPage($this->countPage).'" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>';
 		}else{
-			$pagestr .= ' [<a href="javascript:void(0);">下页</a>] ';
-			$pagestr .= ' [<a href="javascript:void(0);">尾页</a>] ';
+			$pagestr .= '<li><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>';
+			$pagestr .= '<li><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>';
 		}
+		$pagestr .= '</ul></nav>';
 		return $pagestr;
 	}
 }
