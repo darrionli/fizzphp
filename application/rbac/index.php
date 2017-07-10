@@ -5,5 +5,5 @@ header("content-type:text/html;charset=utf-8");
 // require '../../system/db/mysql.class.php';
 require '../../system/lib/page.class.php';
 $cpage = isset($_GET['page'])?(int)$_GET['page']:1;
-$page = new Page(30, $cpage, 2, 8, '/application/rbac/index.php?page={page}');
+$page = new Page(30, $cpage, 2, 7, '/application/rbac/index.php?page={page}');
 echo $page->showPage(1);

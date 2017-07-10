@@ -48,6 +48,8 @@ class Page{
 	public function showPage($pageStyle){
 		if($pageStyle==1){
 			return $this->createPage1();
+		}elseif($pageStyle==2){
+			return $this->createPage2();
 		}
 	}
 
@@ -75,8 +77,18 @@ class Page{
 				}
 			}
 		}else{
-			$left = 1+4;
-			$right = $this->countPage-4;
+			$left_step = $right_step = 4; //默认的步长
+			$right_need = $this->countPage - ($this->pageShow - 1) + 1;
+
+			if($this->pageShow-1 < $this->currentPage){
+				$left_step = $left_step - ($this->currentPage - ($this->currentPage-1));
+			}
+			if($right_need > $this->currentPage){
+				$right_step = $right_step + ($this->currentPage-$right_need);
+			}
+
+			$left = 1 + $left_step;
+			$right = $this->countPage - $right_step;
 
 			if($this->currentPage<=$left){
 				$need = $this->pageShow - 1;
@@ -94,9 +106,17 @@ class Page{
 			if($this->currentPage>$left && $this->currentPage<$right){
 				$pagestr .= '<li><a href="'.$this->setPage(1).'">1</a></li>';
 				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
-				$left = $this->currentPage - 3;
-				$right = $this->currentPage + 3;
-				for ($i=$left; $i <= $right; $i++) {
+				// 根据需要显示的页数计算中间页
+				$submid = ($this->pageShow - 3)/2;
+				if(($this->pageShow - 3)%2===0){
+					$subleft = $this->currentPage - $submid;
+					$subright = $this->currentPage + $submid;
+				}else{
+					$subleft = $this->currentPage - ceil($submid);
+					$subright = $this->currentPage + floor($submid);
+				}
+
+				for ($i=$subleft; $i<=$subright; $i++) {
 					if($i==$this->currentPage){
 						$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
 					}else{
@@ -110,8 +130,7 @@ class Page{
 			if($this->currentPage>=$right){
 				$pagestr .= '<li><a href="'.$this->setPage(1).'">1</a></li>';
 				$pagestr .= '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
-				$need = $this->countPage - ($this->pageShow - 1) + 1;
-				for ($i=$need; $i <= $this->countPage; $i++) {
+				for ($i=$right_need; $i <= $this->countPage; $i++) {
 					if($i==$this->currentPage){
 						$pagestr .= '<li class="active"><a href="javascript:void(0);">'.$i.'</a></li>';
 					}else{
@@ -125,10 +144,14 @@ class Page{
 			$pagestr .= '<li><a href="'.$this->setPage($this->currentPage+1).'" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>';
 			$pagestr .= '<li><a href="'.$this->setPage($this->countPage).'" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>';
 		}else{
-			$pagestr .= '<li><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>';
-			$pagestr .= '<li><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>';
+			$pagestr .= '<li class="disabled"><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">下一页</span></a></li>';
+			$pagestr .= '<li class="disabled"><a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">尾页</span></a></li>';
 		}
 		$pagestr .= '</ul></nav>';
 		return $pagestr;
+	}
+
+	private function createPage2(){
+
 	}
 }
