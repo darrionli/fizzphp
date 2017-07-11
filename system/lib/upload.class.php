@@ -20,7 +20,8 @@ class Upload{
 			$this->setOption($key, $value);
 		}
 	}
-	function uploadfile($field) {
+
+	public function uploadfile($field) {
 		$return=true;
 		if (!$this->CheckPath()) {
 			$this->errormsg=$this->geterrorNum();
