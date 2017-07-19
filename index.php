@@ -24,7 +24,7 @@ if(ERRORDEBUG){
 $system_path = 'system';
 
 // 应用文件
-$app_folder = 'application';
+$app_folder = '../../application';
 
 // 视图层文件
 $view_folder = '';
@@ -47,11 +47,11 @@ if (!is_dir($system_path))
 }
 
 // 项目所在的根目录
-define('ROOTPATH',str_replace('\\','/',realpath(dirname(__FILE__).'/')));
+define('ROOTPATH',str_replace('\\',DIRECTORY_SEPARATOR,realpath(dirname(__FILE__).'/')));
 // 核心文件夹路径
 define('SYSTEMPATH', $system_path);
 // 应用目录
-define('APPPATH', APPPATH.DIRECTORY_SEPARATOR.'application');
+define('APPPATH', ROOTPATH.DIRECTORY_SEPARATOR.'application');
 // 视图层目录
 define('VIEWPATH', ROOTPATH.DIRECTORY_SEPARATOR.'view');
 
