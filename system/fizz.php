@@ -5,7 +5,7 @@ class Fizz{
 	public function __construct(){}
 
 	public static function run(){
-		new \system\route();
+		new \system\core\route();
 	}
 
 	//类的自动加载

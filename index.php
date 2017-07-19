@@ -28,6 +28,7 @@ $app_folder = 'application';
 
 // 视图层文件
 $view_folder = '';
+
 if(($_temp = realpath($system_path)) !== FALSE){
 	$system_path = $_temp.DIRECTORY_SEPARATOR;
 }else{
