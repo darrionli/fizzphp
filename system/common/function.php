@@ -44,6 +44,11 @@ function debug()
     echo '<span style="color:green;">'.$debug_str.'</span></pre>';
 }
 
-function _error_test(){
-  echo 123;
+/**
+ * [my_error_handler 自定义错误处理函数]
+ * 自定义的错误处理函数一定要有这４个输入变量$errno,$errstr,$errfile,$errline，否则无效。
+ */
+function my_error_handler($errno,$errstr,$errfile,$errline)
+{
+
 }

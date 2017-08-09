@@ -10,11 +10,12 @@ class Fizz{
 		$action = $route->action;
 		$includefile = APPPATH.DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.$controller.'.php';
 		if(is_file($includefile)){
-			// include $includefile;
-			// $control = new $controller;
-			// $control->$action();
+			include $includefile;
+			$control = new $controller;
+			$control->$action();
 		}else{
-			throw new \Exception("没有找到".$controller.'.php文件');
+			// throw new \Exception("没有找到".$controller.'.php文件');
+			echo 'not found';
 		}
 	}
 
