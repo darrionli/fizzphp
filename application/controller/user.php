@@ -5,6 +5,10 @@ class user{
 	}
 
 	public function index(){
-		echo 111;
+		
+	}
+	
+	public function content(){
+		
 	}
 }
