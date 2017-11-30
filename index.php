@@ -11,6 +11,5 @@ define("BASEPATH", ROOT . "framework" . DS);
 define("STATICPATH", ROOT . "static" . DS);
 
 // 运行框架文件
-require(dirname(__FILE__).DIRECTORY_SEPARATOR.'framework/core/Framework.php');
-
+require(BASEPATH . 'core' . DS . 'Framework.php');
 \Framework\core\Framework::run();

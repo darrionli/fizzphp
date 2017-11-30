@@ -3,52 +3,39 @@ namespace Framework\core;
 
 class Framework
 {
-	public static function run()
+	/*类名映射*/
+	public static $map = [];
+
+	/*类命名空间映射*/
+	public static $namespaceMap = [];
+
+	// 启动注册
+	public static function register(app $app)
 	{
-		self::init();
-		self::autoload();
-		self::dispatch();
+		self::$namespaceMap = ['Framework'=>$app->rootPath];
+		spl_autoload_register(['Framework\core', 'autoload']);
 	}
 
-	private static function init()
+	// 自动加载函数
+	private static function autoload($class)
 	{
-	    session_start();
-	}
-
-	/**
-	 * 自动加载
-	 */
-	private static function autoload()
-	{
-		spl_autoload_register(array(__CLASS__, 'load'));
-	}
-
-	/**
-	 * 自动加载的具体实现
-	 */
-	private static function load($classname)
-	{
-		echo $classname;
-		$classFile = APPPATH . 'controllers' . $classname . '.php';
-		if(file_exists($classFile)){
-			require $classFile;
-		}else{
-			throw new Exception("$classname Not Found", 1);
-		}
-	}
-
-
-	/**
-	 * 路由与分发
-	 */
-	private static function dispatch()
-	{
-		$controller_name = CONTROLLER . "Controller";
-
-	    $action_name = ACTION . "Action";
-
-	    $controller = new $controller_name;
-
-	    $controller->$action_name();
+		$classOrigin = $class;
+        $classInfo   = explode('\\', $class);
+        $className   = array_pop($classInfo);
+        foreach ($classInfo as &$v) {
+            $v = strtolower($v);
+        }
+        unset($v);
+        array_push($classInfo, $className);
+        $class       = implode('\\', $classInfo);
+        $path        = self::$namespaceMap['Framework'];
+        $classPath   = $path . '/'.str_replace('\\', '/', $class) . '.php';
+        if (!file_exists($classPath)) {
+            // 框架级别加载文件不存在　composer加载
+            return;
+            throw new CoreHttpException(404, "$classPath Not Found");
+        }
+        self::$map[$classOrigin] = $classPath;
+        require $classPath;
 	}
 }
