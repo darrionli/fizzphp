@@ -1,6 +1,4 @@
-/vendor
-/logs
-composer.phar
+.idea
 composer.lock
-.DS_Store
-Thumbs.db
+*.log
+thinkphp
